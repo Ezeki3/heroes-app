@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HeroesService } from '../../services/heroes.service';
 import { Hero } from '../../interfaces/hero.interface';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { delay, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-heroes-page',
@@ -21,6 +21,7 @@ export class HeroesPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.params.pipe(
+      delay(1000),
       switchMap( ({id}) => this.heroesService.getHeroById(id)),
     ).subscribe( hero => {
         if (!hero) {
@@ -33,7 +34,10 @@ export class HeroesPageComponent implements OnInit {
         return
       }
     )
-    
+  }
+
+  goBack():void{
+    this.router.navigateByUrl('heroes/list')
   }
 
 }
