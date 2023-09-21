@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Hero, Publisher } from '../../interfaces/hero.interface';
 import { HeroesService } from '../../services/heroes.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-new-page',
@@ -27,9 +29,25 @@ export class NewPageComponent implements OnInit {
   
   constructor(
     private herosService: HeroesService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
+
+    if( !this.router.url.includes('edit')) return;
+
+    this.activatedRoute.params.pipe(
+      switchMap( ({ id }) => this.herosService.getHeroById(id) ),
+    ).subscribe( hero => {
+
+      if (!hero) {
+        return this.router.navigateByUrl('/');
+      }
+
+      this.heroForm.reset(hero);
+      return;
+    })
   }
 
   get currentHero(): Hero {
@@ -37,20 +55,22 @@ export class NewPageComponent implements OnInit {
     return hero;
   }
 
-  onSubmit(){
+  onSubmit():void {
 
     if( this.heroForm.invalid ) return;
 
     if ( this.currentHero.id ) {
       this.herosService.updateHero(this.currentHero)
-        .subscribe( hero =>{
+        .subscribe( hero => {
           //TODO: mostrar snackbar
         });
+
+      return;
     }
 
     this.herosService.addHero( this.currentHero )
       .subscribe( hero => {
-        //TODO: mostrar snackbar y navegar a /hero/edit/hero.id
+        //TODO: mostrar snackbar y navegar a /heroes/edit/hero.id
       })
   }
 }
