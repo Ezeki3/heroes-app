@@ -79,6 +79,7 @@
           <button 
             mat-flat-button
             *ngIf="currentHero.id"
+            (click)="onDeleteHero()"
             color="warn">
             Borrar
           </button>
